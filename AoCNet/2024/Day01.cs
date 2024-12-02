@@ -7,9 +7,14 @@ public class Day01 : AdventBase
     protected override object InternalPart1()
     {
         var lines = Input.Lines;
-        var pairs = lines.Select(l => l.Split("   ")).ToList();
-        var left = pairs.Select(p => p[0]).Select(int.Parse).ToList();
-        var right = pairs.Select(p => p[1]).Select(int.Parse).ToList();
+        var left = new List<int>();
+        var right = new List<int>();
+        foreach (var l in lines)
+        {
+            left.Add(int.Parse(l[..4]));
+            right.Add(int.Parse(l[8..]));
+        }
+        
         var totalDistance = left
             .OrderBy(i => i)
             .Zip(right.OrderBy(i => i))
@@ -22,9 +27,14 @@ public class Day01 : AdventBase
     protected override object InternalPart2()
     {
         var lines = Input.Lines;
-        var pairs = lines.Select(l => l.Split("   ")).ToList();
-        var left = pairs.Select(p => p[0]).Select(int.Parse).ToList();
-        var right = pairs.Select(p => p[1]).Select(int.Parse).ToList();
+        var left = new List<int>();
+        var right = new List<int>();
+        foreach (var l in lines)
+        {
+            left.Add(int.Parse(l[..4]));
+            right.Add(int.Parse(l[8..]));
+        }
+        
         var occurrences = new Dictionary<int, int>();
         foreach (var x in right)
         {
