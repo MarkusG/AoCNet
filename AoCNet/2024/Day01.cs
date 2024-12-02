@@ -16,8 +16,8 @@ public class Day01 : AdventBase
         }
         
         var totalDistance = left
-            .OrderBy(i => i)
-            .Zip(right.OrderBy(i => i))
+            .Order()
+            .Zip(right.Order())
             .Select(x => Math.Abs(x.First - x.Second))
             .Sum();
 
