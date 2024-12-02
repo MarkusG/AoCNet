@@ -11,11 +11,11 @@ public class Day02 : AdventBase
         Decreasing
     }
 
-    private static int? UnsafeIndex(IEnumerable<int> report)
+    private static bool IsSafe(IEnumerable<int> report)
     {
         var prevDirection = Direction.Unknown;
         int? last = null;
-        foreach (var (level, idx) in report.Select((level, idx) => (level, idx)))
+        foreach (var level in report)
         {
             if (last is null)
             {
@@ -33,27 +33,28 @@ public class Day02 : AdventBase
             };
 
             if (direction != prevDirection && prevDirection != Direction.Unknown)
-                return idx;
+                return false;
 
             prevDirection = direction;
 
             if (Math.Abs(diff) is < 1 or > 3)
-                return idx;
+                return false;
 
             last = level;
         }
 
-        return null;
+        return true;
     }
 
     private static bool IsSafeWithDampener(int[] report)
     {
-        if (UnsafeIndex(report) is { } idx)
+        for (var i = 0; i < report.Length; i++)
         {
-            return UnsafeIndex(Dampen(report, idx - 1)) is null || UnsafeIndex(Dampen(report, idx)) is null;
+            if (IsSafe(Dampen(report, i)))
+                return true;
         }
 
-        return true;
+        return false;
     }
 
     private static IEnumerable<int> Dampen(int[] report, int index)
@@ -77,7 +78,7 @@ public class Day02 : AdventBase
         var lines = Input.Lines;
         return lines
             .Select(ToReport)
-            .Count(r => UnsafeIndex(r) is null);
+            .Count(IsSafe);
     }
 
     protected override object InternalPart2()
