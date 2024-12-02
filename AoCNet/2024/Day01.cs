@@ -11,8 +11,8 @@ public class Day01 : AdventBase
         var right = new List<int>();
         foreach (var l in lines)
         {
-            left.Add(int.Parse(l[..4]));
-            right.Add(int.Parse(l[8..]));
+            left.Add(int.Parse(l[..5]));
+            right.Add(int.Parse(l[7..]));
         }
         
         var totalDistance = left
@@ -31,8 +31,8 @@ public class Day01 : AdventBase
         var right = new List<int>();
         foreach (var l in lines)
         {
-            left.Add(int.Parse(l[..4]));
-            right.Add(int.Parse(l[8..]));
+            left.Add(int.Parse(l[..5]));
+            right.Add(int.Parse(l[7..]));
         }
         
         var occurrences = new Dictionary<int, int>();
