@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using AdventOfCodeSupport;
 
 namespace AoC._2024;
