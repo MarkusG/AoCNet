@@ -58,11 +58,8 @@ public class Day14 : AdventBase
                 vy += sign * (line[cursor++] - '0');
             }
 
-            for (var i = 0; i < 100; i++)
-            {
-                px = (px + vx) % width;
-                py = (py + vy) % height;
-            }
+            px = (px + vx * 100) % width;
+            py = (py + vy * 100) % height;
 
             if (px < 0)
                 px = width + px;
@@ -96,6 +93,7 @@ public class Day14 : AdventBase
 
     protected override object InternalPart2()
     {
+        return 0;
         var width = 101;
         var height = 103;
         var board = new char[width, height];
@@ -188,11 +186,10 @@ public class Day14 : AdventBase
                         else
                             Console.Write('.');
                     }
+
                     Console.WriteLine();
                 }
             }
         }
-
-        return 0;
     }
 }
