@@ -4,75 +4,147 @@ namespace AoC._2024;
 
 public class Day16 : AdventBase
 {
-    public class Node
-    {
-        public int X { get; set; }
-
-        public int Y { get; set; }
-
-        // 0 east, 1 south, 2 west, 3 north
-        // public int Direction { get; set; }
-
-        public int Distance { get; set; }
-
-        public Node(int x, int y, int direction, int distance)
-        {
-            X = x;
-            Y = y;
-            // Direction = direction;
-            Distance = distance;
-        }
-
-        public override string ToString()
-        {
-            return $"({X}, {Y}, {Distance})";
-        }
-    }
-
     protected override object InternalPart1()
     {
         var board = Input.ToBoard();
 
         var startX = board.Enumerate().Single(tuple => tuple.Value == 'S').X;
         var startY = board.Enumerate().Single(tuple => tuple.Value == 'S').Y;
+        var start = (X: startX, Y: startY, Direction: 'e');
 
         var endX = board.Enumerate().Single(tuple => tuple.Value == 'E').X;
         var endY = board.Enumerate().Single(tuple => tuple.Value == 'E').Y;
 
-        var unvisitedNodes = board.Enumerate()
-            .Where(tuple => tuple.Value is '.' or 'E')
-            .Select(tuple => new Node(tuple.X, tuple.Y, 0, int.MaxValue))
-            .ToHashSet();
+        var distances = new Dictionary<(int X, int Y, char Direction), int> { { start, 0 } };
+        var predecessors = new Dictionary<(int X, int Y, char Distance), (int X, int Y, char Distance)>();
+        var visited = new HashSet<(int X, int Y, char Direction)>();
 
-        var visited = new HashSet<Node>();
-
-        unvisitedNodes.Add(new Node(startX, startY, 0, 0));
-
-        while (unvisitedNodes.Count > 0)
+        while (true)
         {
-            var currentNode = unvisitedNodes.MinBy(n => n.Distance)!;
-            Console.WriteLine(currentNode);
-
-            var neighbors = unvisitedNodes.Where(n =>
-                (n.X - currentNode.X, n.Y - currentNode.Y) is (0, 1) or (1, 0) or (0, -1) or (-1, 0));
+            if (distances.All(kv => visited.Contains(kv.Key)))
+                break;
             
-            foreach (var neighbor in neighbors)
+            var (u, dist) = distances.Where(kv => !visited.Contains(kv.Key)).MinBy(kv => kv.Value);
+            visited.Add(u);
+
+            ((int X, int Y, char Direction) Point, int Distance)[] neighbors = u.Direction switch
             {
-                var distanceThroughCurrent = currentNode.Distance + 1;
+                'e' => new[]
+                {
+                    ((u.X + 1, u.Y, 'e'), 1),
+                    ((u.X, u.Y + 1, 's'), 1001),
+                    ((u.X, u.Y - 1, 'n'), 1001),
+                },
+                's' =>
+                [
+                    ((u.X, u.Y + 1, 's'), 1),
+                    ((u.X + 1, u.Y, 'e'), 1001),
+                    ((u.X - 1, u.Y, 'w'), 1001)
+                ],
+                'w' =>
+                [
+                    ((u.X - 1, u.Y, 'w'), 1),
+                    ((u.X, u.Y + 1, 's'), 1001),
+                    ((u.X, u.Y - 1, 'n'), 1001),
+                ],
+                'n' =>
+                [
+                    ((u.X, u.Y - 1, 'n'), 1),
+                    ((u.X + 1, u.Y, 'e'), 1001),
+                    ((u.X - 1, u.Y, 'w'), 1001)
+                ]
+            };
 
-                if (neighbor.Distance > distanceThroughCurrent)
-                    neighbor.Distance = distanceThroughCurrent;
+            foreach (var v in neighbors.Where(n => board[n.Point.X, n.Point.Y] != '#'))
+            {
+                var alt = dist + v.Distance;
+                distances.TryAdd(v.Point, int.MaxValue - 1);
+                if (alt < distances[v.Point])
+                {
+                    distances[v.Point] = alt;
+                    predecessors[v.Point] = u;
+                }
             }
-
-            visited.Add(currentNode);
-            unvisitedNodes.Remove(currentNode);
         }
-        
-        return visited.First(n => n.X == endX && n.Y == endY).Distance;
+
+        var distance = distances
+            .Where(d => d.Key.X == endX && d.Key.Y == endY)
+            .Select(d => d.Value)
+            .Min();
+
+        return distance;
     }
 
     protected override object InternalPart2()
     {
-        throw new NotImplementedException();
+        var board = Input.ToBoard();
+
+        var startX = board.Enumerate().Single(tuple => tuple.Value == 'S').X;
+        var startY = board.Enumerate().Single(tuple => tuple.Value == 'S').Y;
+        var start = (X: startX, Y: startY, Direction: 'e');
+
+        var endX = board.Enumerate().Single(tuple => tuple.Value == 'E').X;
+        var endY = board.Enumerate().Single(tuple => tuple.Value == 'E').Y;
+
+        var distances = new Dictionary<(int X, int Y, char Direction), int> { { start, 0 } };
+        var predecessors = new Dictionary<(int X, int Y, char Distance), (int X, int Y, char Distance)>();
+        var visited = new HashSet<(int X, int Y, char Direction)>();
+
+        while (true)
+        {
+            if (distances.All(kv => visited.Contains(kv.Key)))
+                break;
+            
+            var (u, dist) = distances.Where(kv => !visited.Contains(kv.Key)).MinBy(kv => kv.Value);
+            visited.Add(u);
+
+            ((int X, int Y, char Direction) Point, int Distance)[] neighbors = u.Direction switch
+            {
+                'e' => new[]
+                {
+                    ((u.X + 1, u.Y, 'e'), 1),
+                    ((u.X, u.Y + 1, 's'), 1001),
+                    ((u.X, u.Y - 1, 'n'), 1001),
+                },
+                's' =>
+                [
+                    ((u.X, u.Y + 1, 's'), 1),
+                    ((u.X + 1, u.Y, 'e'), 1001),
+                    ((u.X - 1, u.Y, 'w'), 1001)
+                ],
+                'w' =>
+                [
+                    ((u.X - 1, u.Y, 'w'), 1),
+                    ((u.X, u.Y + 1, 's'), 1001),
+                    ((u.X, u.Y - 1, 'n'), 1001),
+                ],
+                'n' =>
+                [
+                    ((u.X, u.Y - 1, 'n'), 1),
+                    ((u.X + 1, u.Y, 'e'), 1001),
+                    ((u.X - 1, u.Y, 'w'), 1001)
+                ]
+            };
+
+            foreach (var v in neighbors.Where(n => board[n.Point.X, n.Point.Y] != '#'))
+            {
+                var alt = dist + v.Distance;
+                distances.TryAdd(v.Point, int.MaxValue - 1);
+                if (alt < distances[v.Point])
+                {
+                    distances[v.Point] = alt;
+                    predecessors[v.Point] = u;
+                }
+            }
+        }
+
+        var end = distances.Where(d => d.Key.X == endX && d.Key.Y == endY);
+
+        foreach (var n in end)
+        {
+            Console.WriteLine($"{n.Key}: {n.Value}");
+        }
+
+        return 0;
     }
 }
